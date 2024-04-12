@@ -3,7 +3,7 @@ name: Docker images
 on:
   push:
     branches:
-      - main
+      - klicktipp
     tags:
       - "v*"
     paths:
@@ -11,6 +11,7 @@ on:
       - shard.lock
       - Dockerfile
       - .github/workflows/docker.yml
+  workflow_dispatch:
 
 jobs:
   docker:
@@ -23,7 +24,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: cloudamqp/amqproxy
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/amqproxy
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
             type=ref,event=branch
@@ -41,6 +42,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and push
         uses: docker/build-push-action@v5
